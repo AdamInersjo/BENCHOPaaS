@@ -45,9 +45,9 @@ function [time, relerr] = singleMethod(problem, method, params)
     end
 
     %% set params, and add B = 1.25*K if necessary
-    par = params
+    par = params;
     if strcmp(problem, 'P1cI') || strcmp(problem, 'P1cII')
-        par{6} = par{2} * 1.25
+        par{6} = par{2} * 1.25;
     end
 
     %% Problem 1 a) I
