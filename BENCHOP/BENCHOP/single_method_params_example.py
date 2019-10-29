@@ -10,7 +10,7 @@ methods = ['COS', 'RBFFD', 'UniformGrid']
 # RBFFD returns NaN for all problems.
 
 # Add the singleMethod function to Octave
-octave.addpath('./BENCHOP/BENCHOP')
+octave.addpath('./BENCHOP/BENCHOP') #Warns, and works without this anyways? /Patrik
 
 #Define parameters, these are standard for P1*I
 #(Look in singleMethod.m under the P1*II problems for their params )
