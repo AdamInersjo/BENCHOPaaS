@@ -22,7 +22,7 @@ sig = 0.15
 params = [S, K, T, r, sig]
 
 
-time, relerr = octave.singleMethodWithParameters('P1aI', 'COS', params, nout=2)
+time, relerr = octave.singleMethodWithParams('P1aI', 'COS', params, nout=2)
 print('aI with params')
 print(time)
 print(relerr)
