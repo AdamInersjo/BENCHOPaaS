@@ -1,12 +1,13 @@
 from flask import Flask
-from tasks import benchmark
+from tasks import singleMethod
 import os
-from celery import Celery
+from celery_app import celery_app
+from celery.result import AsyncResult
 
 flask_app = Flask(__name__)
 @flask_app.route('/test', methods=['GET'])
 def test():
-	results = benchmark.delay()
+	results = singleMethod.delay('P1aI', 'COS')
 	return str(results.get())
 
 if __name__ == '__main__':
