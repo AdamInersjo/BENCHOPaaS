@@ -5,8 +5,8 @@ from celery_app import celery_app
 from celery.result import AsyncResult
 
 
-PROBLEMS = ['P1aI', 'P1bI', 'P1cI', 'P1bII']
-METHODS = ['COS', 'UniformGrid']
+PROBLEMS = ['P1aI', 'P1bI', 'P1cI']
+METHODS = ['COS']
 
 ALL_RESULTS = {}
 
@@ -25,7 +25,7 @@ def test():
 		for method in ALL_RESULTS[prob].keys():
 			if ALL_RESULTS[prob][method]['state'] == 'PENDING':
 				result = AsyncResult(ALL_RESULTS[prob][method]['id'], app=celery_app)
-				return str(result.state)
+				return str(ALL_RESULTS[prob][method]['id'], result.state)
 				if result.state != 'PENDING':
 					ALL_RESULTS[prob][method]['state'] = result.state
 					ALL_RESULTS[prob][method]['result'] = result.result
