@@ -6,7 +6,7 @@ from celery.result import AsyncResult
 
 
 PROBLEMS = ['P1aI', 'P1bI', 'P1cI', 'P1bII']
-METHODS = ['COS']
+METHODS = ['COS', 'UniformGrid']
 
 ALL_RESULTS = {}
 
