@@ -11,12 +11,16 @@ flask_app = Flask(__name__)
 def test():
 	global TASK_ID
 	if TASK_ID == 0:
-		result = singleMethod.delay('P1aI', 'COS')
+		result = singleMethod.delay('P1bII', 'UniformGrid')
 		TASK_ID = result.id
 		return str(TASK_ID)
 	else:
 		result = AsyncResult(TASK_ID, app=celery_app)
-		return str(result.state)
+		state = result.state
+		if state == 'PENDING':
+			return state
+		else:
+			return str(result.result)
 
 if __name__ == '__main__':
 	flask_app.run(host='0.0.0.0', port=4567, debug=True)
