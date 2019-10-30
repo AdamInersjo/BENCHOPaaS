@@ -1,13 +1,7 @@
 from flask import Flask
-from moretasks import benchmark
+from tasks import benchmark
 import os
-from celery import Celery, group
-
-env = os.environ
-CELERY_BROKER_URL = env.get('CELERY_BROKER_URL', 'amqp://guest@localhost//')
-CELERY_RESULT_BACKEND = env.get('CELERY_RESULT_BACKEND', 'amqp://')
-
-celery = Celery('tasks', broker = CELERY_BROKER_URL, backend = CELERY_RESULT_BACKEND)
+from celery import Celery
 
 flask_app = Flask(__name__)
 @flask_app.route('/test', methods=['GET'])
