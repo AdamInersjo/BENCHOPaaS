@@ -26,7 +26,7 @@ def test():
 			if ALL_RESULTS[prob][method]['state'] == 'PENDING':
 				result = AsyncResult(ALL_RESULTS[prob][method]['id'], app=celery_app)
 				return str(ALL_RESULTS[prob][method]['id'], result.state)
-				if result.state != 'PENDING':
+				if result.state == 'SUCCESS':
 					ALL_RESULTS[prob][method]['state'] = result.state
 					ALL_RESULTS[prob][method]['result'] = result.result
 	return jsonify(ALL_RESULTS)
