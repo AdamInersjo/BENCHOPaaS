@@ -22,12 +22,12 @@ flask_app = Flask(__name__)
 def test():
 	global ALL_RESULTS
 	for prob in ALL_RESULTS.keys():
-		for method in prob.keys():
-			if method['state'] == 'PENDING':
-				result = AsyncResult(method['id'], app=celery_app)
+		for method in ALL_RESULTS[prob].keys():
+			if ALL_RESULTS[prob][method]['state'] == 'PENDING':
+				result = AsyncResult(ALL_RESULTS[prob][method]['id'], app=celery_app)
 				if result.state != 'PENDING':
-					method['state'] = result.state
-					method['result'] = result.result
+					ALL_RESULTS[prob][method]['state'] = result.state
+					ALL_RESULTS[prob][method]['result'] = result.result
 	return jsonify(ALL_RESULTS)
 
 if __name__ == '__main__':
