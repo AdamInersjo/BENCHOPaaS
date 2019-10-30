@@ -25,6 +25,7 @@ def test():
 		for method in ALL_RESULTS[prob].keys():
 			if ALL_RESULTS[prob][method]['state'] == 'PENDING':
 				result = AsyncResult(ALL_RESULTS[prob][method]['id'], app=celery_app)
+				return str(result.state)
 				if result.state != 'PENDING':
 					ALL_RESULTS[prob][method]['state'] = result.state
 					ALL_RESULTS[prob][method]['result'] = result.result
