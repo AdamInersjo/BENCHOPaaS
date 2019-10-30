@@ -61,7 +61,6 @@ function [time, relerr] = singleMethodWithParams(problem, method, params)
 
         time=timeBSeuCallUI(1);
         relerr=relerrBSeuCallUI(1);
-    
     %% Problem 1 b) I
     elseif strcmp(problem, 'P1bI')
         rootpath=pwd;
@@ -122,3 +121,4 @@ function [time, relerr] = singleMethodWithParams(problem, method, params)
         time=timeBSupoutCallII;
         relerr=relerrBSupoutCallII;
     end
+cd(rootpath);

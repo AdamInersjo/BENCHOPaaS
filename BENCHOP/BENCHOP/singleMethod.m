@@ -122,3 +122,4 @@ function [time, relerr] = singleMethod(problem, method)
         time=timeBSupoutCallII;
         relerr=relerrBSupoutCallII;
     end
+cd(rootpath);
