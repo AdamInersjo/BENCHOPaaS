@@ -21,7 +21,7 @@ flask_app = Flask(__name__)
 @flask_app.route('/test', methods=['GET'])
 def test():
 	global ALL_RESULTS
-	for prob in ALL_RESULTS.keys()
+	for prob in ALL_RESULTS.keys():
 		for method in prob.keys():
 			if method['state'] == 'PENDING':
 				result = AsyncResult(method['id'], app=celery_app)
