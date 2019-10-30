@@ -5,7 +5,7 @@ from celery_app import celery_app
 from celery.result import AsyncResult
 
 
-PROBLEMS = ['P1aI', 'P1bI', 'P1cI']
+PROBLEMS = ['P1aI', 'P1bI', 'P1cI', 'P1aII', 'P1bII']
 METHODS = ['COS']
 
 ALL_RESULTS = {}
@@ -14,7 +14,7 @@ for prob in PROBLEMS:
 	ALL_RESULTS[prob] = {}
 	for method in METHODS:
 		result = singleMethod.delay(prob, method)
-		ALL_RESULTS[prob][method] = {'state': 'PENDING', 'id': result.id, 'result': ''}
+		ALL_RESULTS[prob][method] = {'state': 'PENDING', 'id': result.id, 'result': {}}
 
 flask_app = Flask(__name__)
 
@@ -25,10 +25,10 @@ def test():
 		for method in ALL_RESULTS[prob].keys():
 			if ALL_RESULTS[prob][method]['state'] == 'PENDING':
 				result = AsyncResult(ALL_RESULTS[prob][method]['id'], app=celery_app)
-				return str(ALL_RESULTS[prob][method]['id'], result.state)
 				if result.state == 'SUCCESS':
 					ALL_RESULTS[prob][method]['state'] = result.state
-					ALL_RESULTS[prob][method]['result'] = result.result
+					ALL_RESULTS[prob][method]['result']['time'] = result.result[0]
+					ALL_RESULTS[prob][method]['result']['relerr'] = result.result[1]
 	return jsonify(ALL_RESULTS)
 
 if __name__ == '__main__':
