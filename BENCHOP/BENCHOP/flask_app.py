@@ -1,9 +1,9 @@
 from flask import Flask, jsonify, render_template
-from tasks import singleMethod
+from tasks import singleMethod, singleMethodWithParams
 from celery_app import celery_app
 from celery.result import AsyncResult
 
-import pygal
+import pygal, json
 from pygal.style import Style
 from pygal.style import CleanStyle, DefaultStyle
 
@@ -39,13 +39,8 @@ for prob in PROBLEMS:
 		result = singleMethod.delay(prob, method)
 		ALL_RESULTS[prob][method] = {'state': 'PENDING', 'id': result.id, 'result': {'time': 0, 'relerr': 0}}
 
-#Start the flask app after all tasks are created
-flask_app = Flask(__name__)
-
-#Updates global variable with newly finished results and returns everything
-@flask_app.route('/benchmark', methods=['GET'])
-def run_benchmark():
-	
+#Use this to update state
+def update_results():
 	global ALL_RESULTS
 	for prob in ALL_RESULTS.keys():
 		for method in ALL_RESULTS[prob].keys():
@@ -55,8 +50,17 @@ def run_benchmark():
 					ALL_RESULTS[prob][method]['state'] = result.state
 					ALL_RESULTS[prob][method]['result']['time'] = result.result[0]
 					ALL_RESULTS[prob][method]['result']['relerr'] = result.result[1]
-	
 
+#Start the flask app after all tasks are created
+flask_app = Flask(__name__)
+
+#Updates global variable with newly finished results and returns everything
+@flask_app.route('/benchmark', methods=['GET'])
+def obtain_benchmark_results():
+	
+	update_results()
+
+	global ALL_RESULTS
 	time_charts = []
 	relerr_charts = []
 	for prob in sorted(ALL_RESULTS.keys()):
@@ -90,10 +94,30 @@ def run_benchmark():
 		relerr_chart_data = relerr_chart.render_data_uri()
 		relerr_charts.append(relerr_chart_data)
 		
-		
 	return render_template("webui.html", results = ALL_RESULTS, time_charts = time_charts, relerr_charts = relerr_charts)
 
-	#return jsonify(ALL_RESULTS)
+
+@flask_app.route('/benchmark/json', methods=['GET'])
+def obtain_results_json():
+	update_results()
+	global ALL_RESULTS
+	return jsonify(ALL_RESULTS)
+
+@flask_app.route('/UDF/<string:json_string>')
+def UDF():
+	global ALL_RESULTS
+	try:
+		user_variables = json.loads(json_string)
+		prob = user_variables['problem']
+		method = user_variables['method']
+		params = user_variables['params']
+		result = singleMethodWithParams.delay(prob, method, params).get()
+		comparison = {'standard_results': ALL_RESULTS, 'UDF': {'time': result[0], 'relerr': result[1]}}
+		return jsonify(comparison)
+	except:
+		return str('wrong input, use: {"problem": prob, "method": method, "params": [S, K, T, r, sig]}\n') 
+
+
 
 if __name__ == '__main__':
 	flask_app.run(host='0.0.0.0', port=4567, debug=True)
