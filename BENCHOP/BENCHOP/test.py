@@ -3,6 +3,8 @@ from celery_app import celery_app
 from celery.result import AsyncResult
 import time
 
+#NOT TESTED (could not connect to my vms...)
+
 #A test to verify that adding more workers speeds up evaluation of the benchmark.
 
 #Since this essentially is what the flask app does, running this with different numbers
