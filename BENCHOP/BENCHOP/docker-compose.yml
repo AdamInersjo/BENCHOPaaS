@@ -48,7 +48,7 @@ services:
         networks:
             - benchopnet
         deploy:
-            replicas: 9
+            replicas: 8
             restart_policy:
                 condition: on-failure
                 max_attempts: 3
