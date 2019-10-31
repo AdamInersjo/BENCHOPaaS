@@ -1,0 +1,39 @@
+<body class="body">
+	
+</body>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>   
+<meta charset="utf-8" /> <title>BaaS</title>      <!-- import plugin script -->   
+<style type="text/css">
+	#center-page {
+        	margin: auto;
+        	width: 50%;
+        	text-align: center;
+        	padding: 10px;
+	}
+</style>
+</head>
+<body>
+	<div id="center-page">
+		<h1> BENCHOP as a Service in OpenStack </h1>
+		<h3> Option price solver </h3>
+		<dl>
+			{% for chart in time_charts %}
+				<div class="container" align="left">
+					<embed type="image/svg+xml" src={{chart|safe}} style = 'max-width:1000px'/>
+				</div>
+			{% endfor %}
+		</dl>
+		<dl>
+			{% for chart in relerr_charts %}
+				<div class="container" align="left">
+					<embed type="image/svg+xml" src={{chart|safe}} style = 'max-width:1000px'/>
+				</div>
+			{% endfor %}
+		</dl>
+		<p> Type of option price solve, time and relative error  </p>
+	</div>
+</body>
+</html>
