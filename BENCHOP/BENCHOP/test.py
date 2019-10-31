@@ -1,44 +1,44 @@
-from oct2py import octave
+from tasks import singleMethod
+from celery_app import celery_app
+from celery.result import AsyncResult
+import time
 
-probs1 = ['P1aI', 'P1bI', 'P1cI']
-probs2 = ['P1aII', 'P1bII', 'P1cII']
-methods = ['COS', 'RBFFD', 'UniformGrid']
+#A test to verify that adding more workers speeds up evaluation of the benchmark.
 
-# Add the singleMethod function to Octave
-octave.addpath('./BENCHOP/BENCHOP') #Warns, and works without this anyways? /Patrik
+#Since this essentially is what the flask app does, running this with different numbers
+# of workers would indicate that the service scales.
 
-#Define parameters, these are standard for P1*I
-#(Look in singleMethod.m under the P1*II problems for their params )
-S = [90, 100, 110]
-K = 100
-T = 1.0
-r = 0.03
-sig = 0.15
-params = [S, K, T, r, sig]
+start = time.time()
 
-for prob in probs1:
-    for method in methods:
-        time, relerr = octave.singleMethodWithParams(prob, method, params, nout=2)
-        print(prob, method, 'withparams')
-        print(time, relerr)
-        time, relerr = octave.singleMethod(prob, method, nout=2)
-        print(prob, method, 'noparams')
-        print(time, relerr)
+PROBLEMS = ['P1aI', 'P1bI', 'P1cI', 'P1aII']
+METHODS = ['COS', 'UniformGrid']
 
-print('*** Problems II ***')
-S = [97, 98, 99]
-K = 100
-T = 0.25
-r = 0.1
-sig = 0.01
-params = [S, K, T, r, sig]
+print('Sending tasks')
+ALL_RESULTS = {}
+for prob in PROBLEMS:
+	ALL_RESULTS[prob] = {}
+	for method in METHODS:
+		result = singleMethod.delay(prob, method)
+		ALL_RESULTS[prob][method] = {'state': 'PENDING', 'id': result.id, 'result': {'time': 0, 'relerr': 0}}
 
-for prob in probs2:
-    for method in methods:
-        time, relerr = octave.singleMethodWithParams(prob, method, params, nout=2)
-        print(prob, method, 'withparams')
-        print(time, relerr)
-        time, relerr = octave.singleMethod(prob, method, nout=2)
-        print(prob, method, 'noparams')
-        print(time, relerr)
+print('Tasks sent')
+while not update_results():
+    print('working...')
+    time.sleep(1)
+finish = time.time()
+print('Done!')
+print('Total time elapsed: ', finish-start)
 
+def update_results():
+	global ALL_RESULTS
+    done = True
+	for prob in ALL_RESULTS.keys():
+		for method in ALL_RESULTS[prob].keys():
+			if ALL_RESULTS[prob][method]['state'] == 'PENDING':
+                done = False
+				result = AsyncResult(ALL_RESULTS[prob][method]['id'], app=celery_app)
+				if result.state == 'SUCCESS':
+					ALL_RESULTS[prob][method]['state'] = result.state
+					ALL_RESULTS[prob][method]['result']['time'] = result.result[0]
+					ALL_RESULTS[prob][method]['result']['relerr'] = result.result[1]
+    return done
