@@ -19,7 +19,7 @@ RBFFD method is useless since it doesn't work and always returns NaN values.
 
 
 #Use only a subset of problems and a single method for testing.
-PROBLEMS = ['P1aI', 'P1bI', 'P1cI', 'P1aII', 'P1bII', 'P1cII']
+PROBLEMS = ['P1aI', 'P1bI', 'P1cI']
 METHODS = ['COS','UniformGrid']  
 
 '''
