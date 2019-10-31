@@ -19,8 +19,8 @@ RBFFD method is useless since it doesn't work and always returns NaN values.
 
 
 #Use only a subset of problems and a single method for testing.
-PROBLEMS = ['P1aI', 'P1bI']
-METHODS = ['COS','UniformGrid']  
+PROBLEMS = ['P1aI', 'P1bI', 'P1cI']
+METHODS = ['COS']  
 
 '''
 The goal here is to start the benchmark with default parameters only once, 
@@ -39,12 +39,8 @@ for prob in PROBLEMS:
 		result = singleMethod.delay(prob, method)
 		ALL_RESULTS[prob][method] = {'state': 'PENDING', 'id': result.id, 'result': {'time': 0, 'relerr': 0}}
 
-#Start the flask app after all tasks are created
-flask_app = Flask(__name__)
-
-#Updates global variable with newly finished results and returns everything
-@flask_app.route('/benchmark', methods=['GET'])
-def obtain_benchmark_results():
+#Use this to update state
+def update_results():
 	global ALL_RESULTS
 	for prob in ALL_RESULTS.keys():
 		for method in ALL_RESULTS[prob].keys():
@@ -55,6 +51,15 @@ def obtain_benchmark_results():
 					ALL_RESULTS[prob][method]['result']['time'] = result.result[0]
 					ALL_RESULTS[prob][method]['result']['relerr'] = result.result[1]
 
+#Start the flask app after all tasks are created
+flask_app = Flask(__name__)
+
+#Updates global variable with newly finished results and returns everything
+@flask_app.route('/benchmark', methods=['GET'])
+def obtain_benchmark_results():
+	global ALL_RESULTS
+	update_results()
+	
 	time_charts = []
 	relerr_charts = []
 	for prob in sorted(ALL_RESULTS.keys()):
@@ -94,14 +99,7 @@ def obtain_benchmark_results():
 @flask_app.route('/benchmark/json', methods=['GET'])
 def obtain_results_json():
 	global ALL_RESULTS
-	for prob in ALL_RESULTS.keys():
-		for method in ALL_RESULTS[prob].keys():
-			if ALL_RESULTS[prob][method]['state'] == 'PENDING':
-				result = AsyncResult(ALL_RESULTS[prob][method]['id'], app=celery_app)
-				if result.state == 'SUCCESS':
-					ALL_RESULTS[prob][method]['state'] = result.state
-					ALL_RESULTS[prob][method]['result']['time'] = result.result[0]
-					ALL_RESULTS[prob][method]['result']['relerr'] = result.result[1]
+	update_results()
 	return jsonify(ALL_RESULTS)
 
 @flask_app.route('/UDF', methods=['POST'])
@@ -113,16 +111,7 @@ def UDF():
 		method = user_variables['method']
 		params = user_variables['params']
 		result = singleMethodWithParams.delay(prob, method, params).get()
-
-		for prob in ALL_RESULTS.keys():
-		for method in ALL_RESULTS[prob].keys():
-			if ALL_RESULTS[prob][method]['state'] == 'PENDING':
-				result = AsyncResult(ALL_RESULTS[prob][method]['id'], app=celery_app)
-				if result.state == 'SUCCESS':
-					ALL_RESULTS[prob][method]['state'] = result.state
-					ALL_RESULTS[prob][method]['result']['time'] = result.result[0]
-					ALL_RESULTS[prob][method]['result']['relerr'] = result.result[1]
-
+		update_results()
 		comparison = {'standard_results': ALL_RESULTS, 'UDF': {'time': result[0], 'relerr': result[1]}}
 		return jsonify(comparison)
 	except:
