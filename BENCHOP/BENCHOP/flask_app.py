@@ -102,6 +102,10 @@ def obtain_results_json():
 	update_results()
 	return jsonify(ALL_RESULTS)
 
+
+#The user can run a problem/method combination with their own parameters by sending a curl call like this:
+#$ curl --header "Content-Type: application/json" --request POST --data '{"problem":"P1aI","method":"COS","params":[[90,100,110],100,1.0,0.03,0.15]}' whatever_ip/UDF
+#They then receive time, relerr for whatever they asked for, as well as the standard benchmark results for comparison
 @flask_app.route('/UDF', methods=['POST'])
 def UDF():
 	global ALL_RESULTS
