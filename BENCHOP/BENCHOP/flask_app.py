@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from tasks import singleMethod, singleMethodWithParams
 from celery_app import celery_app
 from celery.result import AsyncResult
@@ -103,11 +103,11 @@ def obtain_results_json():
 	global ALL_RESULTS
 	return jsonify(ALL_RESULTS)
 
-@flask_app.route('/UDF/<string:json_string>')
+@flask_app.route('/UDF', methods=['POST'])
 def UDF():
 	global ALL_RESULTS
 	try:
-		user_variables = json.loads(json_string)
+		user_variables = request.get_json()
 		prob = user_variables['problem']
 		method = user_variables['method']
 		params = user_variables['params']
@@ -115,7 +115,7 @@ def UDF():
 		comparison = {'standard_results': ALL_RESULTS, 'UDF': {'time': result[0], 'relerr': result[1]}}
 		return jsonify(comparison)
 	except:
-		return str('wrong input, use: {"problem": prob, "method": method, "params": [S, K, T, r, sig]}\n') 
+		return str('wrong content, use: {"problem": "prob", "method": "method", "params": [S, K, T, r, sig]}\n') 
 
 
 
