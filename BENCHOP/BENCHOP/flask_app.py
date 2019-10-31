@@ -20,7 +20,7 @@ RBFFD method is useless since it doesn't work and always returns NaN values.
 
 #Use only a subset of problems and a single method for testing.
 PROBLEMS = ['P1aI', 'P1bI', 'P1cI']
-METHODS = ['COS','UniformGrid']  
+METHODS = ['COS']  
 
 '''
 The goal here is to start the benchmark with default parameters only once, 
@@ -99,8 +99,8 @@ def obtain_benchmark_results():
 
 @flask_app.route('/benchmark/json', methods=['GET'])
 def obtain_results_json():
-	update_results()
 	global ALL_RESULTS
+	update_results()
 	return jsonify(ALL_RESULTS)
 
 @flask_app.route('/UDF', methods=['POST'])
@@ -112,6 +112,7 @@ def UDF():
 		method = user_variables['method']
 		params = user_variables['params']
 		result = singleMethodWithParams.delay(prob, method, params).get()
+		update_results()
 		comparison = {'standard_results': ALL_RESULTS, 'UDF': {'time': result[0], 'relerr': result[1]}}
 		return jsonify(comparison)
 	except:
